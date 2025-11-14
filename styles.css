@@ -250,6 +250,7 @@
             flex-direction: column;
             justify-content: flex-start;
             overflow-y: auto;
+            align-items: center;
         }
 
         .spell-cast-header {
@@ -258,6 +259,8 @@
             color: #ffd700;
             margin-bottom: 15px;
             text-shadow: 0 0 10px #ffd700;
+            max-width: 900px;
+            width: 100%;
         }
 
         .problem-display {
@@ -269,14 +272,19 @@
             padding: 15px;
             border-radius: 15px;
             border: 2px solid #ffd700;
+            max-width: 700px;
+            width: 100%;
         }
 
         .visual-hint {
             display: flex;
-            justify-content: center;
+            flex-direction: column;
+            align-items: center;
             gap: 10px;
             margin-bottom: 12px;
             font-size: 1.1em;
+            max-width: 900px;
+            width: 100%;
         }
 
         .hint-term {
@@ -293,6 +301,8 @@
             justify-content: center;
             align-items: center;
             margin-bottom: 10px;
+            max-width: 900px;
+            width: 100%;
         }
 
         .spell-input {
@@ -419,6 +429,12 @@
 
         .solution-box strong {
             color: #ffd700;
+        }
+
+        #hintDisplay {
+            max-width: 900px;
+            width: 100%;
+            margin: 0 auto;
         }
 
         @keyframes fadeIn {
