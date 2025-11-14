@@ -250,7 +250,6 @@
             flex-direction: column;
             justify-content: flex-start;
             overflow-y: auto;
-            text-align: center;
         }
 
         .spell-cast-header {
@@ -267,13 +266,12 @@
             color: #fff;
             margin-bottom: 15px;
             background: rgba(255, 215, 0, 0.1);
-            padding: 15px 30px;
+            padding: 15px;
             border-radius: 15px;
             border: 2px solid #ffd700;
-            display: inline-block;
+            max-width: 750px;
             margin-left: auto;
             margin-right: auto;
-            max-width: 90%;
         }
 
         .visual-hint {
@@ -1097,8 +1095,7 @@
 
             .problem-display {
                 font-size: 1.5em;
-                padding: 15px 20px;
-                max-width: 95%;
+                padding: 15px 10px;
             }
 
             .answer-input-section {
@@ -1207,7 +1204,6 @@
 
             .problem-display {
                 font-size: 1.3em;
-                padding: 12px 18px;
             }
 
             .spell-input {
