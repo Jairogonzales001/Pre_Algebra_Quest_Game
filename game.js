@@ -86,6 +86,46 @@
         let currentStep = 1; // Track which step player is on (1 or 2)
         let allowSkipSteps = false; // For Crystal Caves level 3+
         let problemStartTime = null; // For Shadow Tower timer
+        let towerDamageInterval = null; // Shadow Tower: damage every 40 seconds
+        let highScores = loadHighScores(); // Persistent high score tracking
+
+        function loadHighScores() {
+            const saved = localStorage.getItem('algebraQuestHighScores');
+            if (saved) {
+                return JSON.parse(saved);
+            }
+            return {
+                forest: { maxLevel: 0, maxStreak: 0, totalWins: 0 },
+                cave: { maxLevel: 0, maxStreak: 0, totalWins: 0 },
+                tower: { maxLevel: 0, maxStreak: 0, totalWins: 0 }
+            };
+        }
+
+        function saveHighScores() {
+            localStorage.setItem('algebraQuestHighScores', JSON.stringify(highScores));
+        }
+
+        function updateHighScores() {
+            const dungeon = gameState.currentDungeon;
+            let updated = false;
+
+            if (gameState.playerLevel > highScores[dungeon].maxLevel) {
+                highScores[dungeon].maxLevel = gameState.playerLevel;
+                updated = true;
+            }
+            if (gameState.streak > highScores[dungeon].maxStreak) {
+                highScores[dungeon].maxStreak = gameState.streak;
+                updated = true;
+            }
+            if (gameState.wins > highScores[dungeon].totalWins) {
+                highScores[dungeon].totalWins = gameState.wins;
+                updated = true;
+            }
+
+            if (updated) {
+                saveHighScores();
+            }
+        }
 
         function showLesson() {
             document.getElementById('titleScreen').style.display = 'none';
@@ -312,6 +352,7 @@
             // Start timer for Shadow Tower
             if (gameState.currentDungeon === 'tower') {
                 problemStartTime = Date.now();
+                startTowerDamage();
             }
 
             // Format the inequality display
@@ -450,6 +491,42 @@
             return num + (hasVar ? 'x' : '');
         }
 
+        function startTowerDamage() {
+            // Shadow Tower: Take damage every 40 seconds
+            if (towerDamageInterval) {
+                clearInterval(towerDamageInterval);
+            }
+
+            let lastDamageTime = Date.now();
+
+            towerDamageInterval = setInterval(() => {
+                const now = Date.now();
+                const elapsed = (now - lastDamageTime) / 1000;
+
+                if (elapsed >= 40) {
+                    // Deal damage scaled to level (small but noticeable)
+                    const damage = 5 + (gameState.playerLevel * 2); // 7-25 HP depending on level
+                    gameState.playerHP = Math.max(0, gameState.playerHP - damage);
+                    updatePlayerHealth();
+                    addLog(`⏳ TIME PENALTY! Lost ${damage} HP (40s elapsed)`);
+
+                    if (gameState.playerHP <= 0) {
+                        stopTowerDamage();
+                        defeat();
+                    }
+
+                    lastDamageTime = now;
+                }
+            }, 1000); // Check every second
+        }
+
+        function stopTowerDamage() {
+            if (towerDamageInterval) {
+                clearInterval(towerDamageInterval);
+                towerDamageInterval = null;
+            }
+        }
+
         function toggleSkipMode() {
             // Cave dungeon level 3+: Allow skipping to final answer
             if (!allowSkipSteps) return;
@@ -499,6 +576,7 @@
                         clearInterval(window.timerInterval);
                         window.timerInterval = null;
                     }
+                    stopTowerDamage(); // Stop tower damage interval
 
                     const baseDamage = 20 + (gameState.playerLevel * 5);
                     const streakBonus = gameState.streak * 2;
@@ -558,6 +636,7 @@
                     clearInterval(window.timerInterval);
                     window.timerInterval = null;
                 }
+                stopTowerDamage(); // Stop tower damage interval
 
                 // Show correct answer for this step
                 let stepSolution = '';
@@ -851,6 +930,7 @@
             }
             document.getElementById('levelUpMsg').textContent = levelUpMsg;
 
+            updateHighScores(); // Update high scores after win and potential level up
             updatePlayerStats();
             document.getElementById('victoryScreen').style.display = 'flex';
             addLog(`🏆 Victory! Earned ${xp} XP and ${gold} gold!`);
@@ -880,6 +960,14 @@
             document.getElementById('playerWins').textContent = gameState.wins;
             document.getElementById('playerStreak').textContent = gameState.streak;
             document.getElementById('playerGold').textContent = gameState.gold + ' 🪙';
+
+            // Update high scores for current dungeon
+            const dungeon = gameState.currentDungeon;
+            if (dungeon && highScores[dungeon]) {
+                document.getElementById('highScoreLevel').textContent = highScores[dungeon].maxLevel;
+                document.getElementById('highScoreStreak').textContent = highScores[dungeon].maxStreak;
+            }
+
             updatePlayerHealth();
         }
 
