@@ -188,12 +188,13 @@
 
         .stats-panel {
             position: absolute;
-            top: 20px;
-            left: 20px;
+            bottom: 20px;
+            right: 20px;
             background: rgba(0, 0, 0, 0.8);
             padding: 20px;
             border-radius: 15px;
             border: 2px solid #ffd700;
+            z-index: 50;
         }
 
         .stat-row {
@@ -216,14 +217,15 @@
         .battle-log {
             position: absolute;
             top: 20px;
-            right: 20px;
-            width: 300px;
-            max-height: 200px;
-            background: rgba(0, 0, 0, 0.9);
-            padding: 15px;
+            left: 20px;
+            width: 280px;
+            max-height: 180px;
+            background: rgba(0, 0, 0, 0.85);
+            padding: 12px;
             border-radius: 10px;
             border: 2px solid #4ecdc4;
             overflow-y: auto;
+            font-size: 0.95em;
         }
 
         .log-entry {
@@ -490,7 +492,7 @@
         .menu-button {
             position: absolute;
             top: 20px;
-            right: 340px;
+            right: 20px;
             background: rgba(0, 0, 0, 0.8);
             border: 2px solid #ffd700;
             color: #ffd700;
@@ -501,6 +503,7 @@
             font-weight: bold;
             transition: all 0.3s;
             font-family: 'Courier New', monospace;
+            z-index: 100;
         }
 
         .menu-button:hover {
@@ -1010,8 +1013,10 @@
             .stats-panel {
                 position: relative;
                 width: calc(100% - 40px);
-                left: 0;
-                top: 0;
+                left: auto;
+                right: auto;
+                top: auto;
+                bottom: auto;
                 margin: 10px auto;
                 padding: 15px;
             }
@@ -1025,10 +1030,12 @@
             .battle-log {
                 position: relative;
                 width: calc(100% - 40px);
+                left: auto;
                 right: auto;
                 top: 0;
                 margin: 10px auto;
                 max-height: 150px;
+                font-size: 0.9em;
             }
 
             /* Menu Button Mobile */
