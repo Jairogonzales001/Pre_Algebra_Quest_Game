@@ -680,3 +680,337 @@
             font-size: 1.2em;
             color: #ff6b6b;
         }
+
+        /* Mobile Responsive Styles */
+        @media (max-width: 768px) {
+            body {
+                overflow-y: auto;
+            }
+
+            /* Title Screen Mobile */
+            .game-title {
+                font-size: 2.5em;
+                padding: 0 20px;
+            }
+
+            .game-subtitle {
+                font-size: 1.2em;
+                margin-bottom: 30px;
+            }
+
+            .story-text {
+                font-size: 1em;
+                padding: 0 20px;
+                max-width: 100%;
+            }
+
+            .start-button {
+                padding: 15px 40px;
+                font-size: 1.2em;
+            }
+
+            /* Dungeon Selection Mobile */
+            .dungeon-card {
+                width: calc(100% - 40px);
+                max-width: 350px;
+                padding: 20px;
+                margin: 10px;
+            }
+
+            .dungeon-name {
+                font-size: 1.5em;
+            }
+
+            .dungeon-difficulty {
+                font-size: 1em;
+            }
+
+            /* Battle Screen Mobile */
+            .battle-screen {
+                height: auto;
+                min-height: 100vh;
+                overflow-y: auto;
+            }
+
+            .battle-field {
+                height: auto;
+                min-height: 300px;
+                padding: 20px 10px;
+                flex-direction: column;
+                gap: 30px;
+            }
+
+            .character-sprite {
+                width: 120px;
+                height: 120px;
+                font-size: 2.5em;
+            }
+
+            .enemy-sprite {
+                width: 150px;
+                height: 150px;
+                font-size: 3em;
+            }
+
+            .boss-sprite {
+                width: 200px !important;
+                height: 200px !important;
+                font-size: 4em !important;
+            }
+
+            /* Stats Panel Mobile */
+            .stats-panel {
+                position: relative;
+                width: calc(100% - 40px);
+                left: 0;
+                top: 0;
+                margin: 10px auto;
+                padding: 15px;
+            }
+
+            .stat-row {
+                font-size: 1em;
+                margin: 8px 0;
+            }
+
+            /* Battle Log Mobile */
+            .battle-log {
+                position: relative;
+                width: calc(100% - 40px);
+                right: auto;
+                top: 0;
+                margin: 10px auto;
+                max-height: 150px;
+            }
+
+            /* Menu Button Mobile */
+            .menu-button {
+                position: fixed;
+                top: 10px;
+                right: 10px;
+                padding: 10px 15px;
+                font-size: 1em;
+                z-index: 100;
+            }
+
+            /* Inventory Panel Mobile */
+            .inventory-panel {
+                position: relative;
+                width: calc(100% - 40px);
+                left: 0;
+                bottom: 0;
+                margin: 10px auto;
+                text-align: center;
+            }
+
+            .item-slot {
+                width: 60px;
+                height: 60px;
+                font-size: 2em;
+                margin: 5px;
+            }
+
+            .shop-button {
+                width: 100%;
+                padding: 12px;
+                font-size: 1.1em;
+                margin-top: 15px;
+            }
+
+            /* Problem Panel Mobile */
+            .problem-panel {
+                height: auto;
+                min-height: 300px;
+                padding: 20px 15px;
+            }
+
+            .spell-cast-header {
+                font-size: 1.3em;
+                margin-bottom: 10px;
+            }
+
+            .problem-display {
+                font-size: 1.5em;
+                padding: 15px 10px;
+            }
+
+            .answer-input-section {
+                flex-direction: column;
+                width: 100%;
+            }
+
+            .spell-input {
+                width: 100%;
+                max-width: 100%;
+                font-size: 1.2em;
+                padding: 12px;
+            }
+
+            .action-buttons {
+                width: 100%;
+                flex-direction: column;
+            }
+
+            .battle-btn {
+                width: 100%;
+                padding: 15px;
+                font-size: 1.1em;
+            }
+
+            .hint-tooltip, .solution-box {
+                font-size: 1em;
+                padding: 12px 15px;
+                max-width: 100%;
+            }
+
+            /* Victory/Defeat Screens Mobile */
+            .victory-title {
+                font-size: 2.5em;
+                padding: 0 20px;
+            }
+
+            .reward-box {
+                padding: 20px;
+                width: calc(100% - 40px);
+            }
+
+            .reward-item {
+                font-size: 1.2em;
+            }
+
+            .continue-btn {
+                width: calc(100% - 40px);
+                padding: 15px 30px;
+                font-size: 1.2em;
+            }
+
+            /* Pause Menu Mobile */
+            .pause-title {
+                font-size: 2em;
+                padding: 0 20px;
+            }
+
+            .menu-option-btn {
+                width: calc(100vw - 80px);
+                padding: 15px 30px;
+                font-size: 1.2em;
+            }
+
+            .shop-item {
+                padding: 15px;
+            }
+
+            /* Health Bars Mobile */
+            .health-bar-container {
+                bottom: -50px;
+                width: 150%;
+            }
+
+            .health-label {
+                font-size: 1em;
+            }
+
+            .health-bar {
+                height: 20px;
+            }
+        }
+
+        /* Small Mobile Devices */
+        @media (max-width: 480px) {
+            .game-title {
+                font-size: 2em;
+            }
+
+            .game-subtitle {
+                font-size: 1em;
+            }
+
+            .story-text {
+                font-size: 0.9em;
+            }
+
+            .start-button {
+                padding: 12px 30px;
+                font-size: 1em;
+            }
+
+            .dungeon-name {
+                font-size: 1.3em;
+            }
+
+            .problem-display {
+                font-size: 1.3em;
+            }
+
+            .spell-input {
+                font-size: 1em;
+            }
+
+            .battle-btn {
+                font-size: 1em;
+            }
+
+            .victory-title {
+                font-size: 2em;
+            }
+
+            .character-sprite {
+                width: 100px;
+                height: 100px;
+                font-size: 2em;
+            }
+
+            .enemy-sprite {
+                width: 120px;
+                height: 120px;
+                font-size: 2.5em;
+            }
+
+            .boss-sprite {
+                width: 150px !important;
+                height: 150px !important;
+                font-size: 3em !important;
+            }
+        }
+
+        /* Landscape Mobile Orientation */
+        @media (max-width: 896px) and (orientation: landscape) {
+            .battle-field {
+                flex-direction: row;
+                min-height: 200px;
+                padding: 10px;
+            }
+
+            .character-sprite, .enemy-sprite {
+                width: 100px;
+                height: 100px;
+            }
+
+            .problem-panel {
+                min-height: auto;
+            }
+        }
+
+        /* Touch-friendly improvements */
+        @media (hover: none) and (pointer: coarse) {
+            .battle-btn,
+            .start-button,
+            .continue-btn,
+            .menu-option-btn,
+            .shop-button,
+            .item-slot,
+            .dungeon-card {
+                -webkit-tap-highlight-color: rgba(255, 215, 0, 0.3);
+                touch-action: manipulation;
+            }
+
+            .battle-btn:active,
+            .start-button:active,
+            .continue-btn:active {
+                transform: scale(0.95);
+            }
+
+            .item-slot:active {
+                transform: scale(1.05);
+            }
+        }

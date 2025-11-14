@@ -25,6 +25,8 @@ An educational RPG game for learning two-step linear inequalities, aligned with 
 - **Level-Scaled Enemies**: Enemies deal more damage as you level up
 - **Shop System**: Buy health potions, power gems, and hint scrolls
 - **Auto-Disappearing Messages**: Battle log cleans itself after 15 seconds
+- **Mobile-Friendly**: Fully responsive design works on phones and tablets
+- **PWA Support**: Install on your device's home screen for offline play
 
 ## Educational Focus
 
