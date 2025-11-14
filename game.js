@@ -83,6 +83,7 @@
         };
 
         let currentProblem = {};
+        let currentStep = 1; // Track which step player is on (1 or 2)
 
         function showLesson() {
             document.getElementById('titleScreen').style.display = 'none';
@@ -293,6 +294,7 @@
             }
 
             currentProblem = { a, b, c, inequality };
+            currentStep = 1; // Reset to step 1 for new problem
 
             // Format the inequality display
             const aStr = a === 1 ? '' : (a === -1 ? '-' : a);
@@ -301,14 +303,49 @@
 
             document.getElementById('problemDisplay').innerHTML = `${aStr}x ${bStr} ${inequalityDisplay} ${c}`;
 
-            const visualHTML = `
-                <span class="hint-term">${aStr}x ${bStr}</span>
-                <span style="color: #ffd700;">${inequalityDisplay}</span>
-                <span class="hint-term">${c}</span>
-            `;
-            document.getElementById('visualHint').innerHTML = visualHTML;
+            updateStepPrompt();
             document.getElementById('spellInput').value = '';
             document.getElementById('spellInput').focus();
+        }
+
+        function updateStepPrompt() {
+            const { a, b, c, inequality } = currentProblem;
+            const aStr = a === 1 ? '' : (a === -1 ? '-' : a);
+            const bStr = b >= 0 ? `+ ${b}` : `- ${Math.abs(b)}`;
+            const inequalityDisplay = inequality.replace('<=', '≤').replace('>=', '≥');
+
+            let promptText = '';
+            let visualHTML = '';
+
+            if (currentStep === 1) {
+                // Step 1: Add or subtract to isolate ax
+                const operation = b >= 0 ? 'subtract' : 'add';
+                const operationValue = Math.abs(b);
+                promptText = `<div style="color: #4ecdc4; font-size: 1.1em; margin-bottom: 10px;">Step 1 of 2: ${operation.charAt(0).toUpperCase() + operation.slice(1)} ${operationValue} from both sides</div>`;
+                visualHTML = `
+                    <span class="hint-term">${aStr}x ${bStr}</span>
+                    <span style="color: #ffd700;">${inequalityDisplay}</span>
+                    <span class="hint-term">${c}</span>
+                `;
+                document.getElementById('spellInput').placeholder = `Type answer (e.g., ${aStr}x>${c - b})`;
+            } else {
+                // Step 2: Divide to isolate x
+                const step1Result = c - b;
+                const step1Ineq = inequality.replace('<=', '≤').replace('>=', '≥');
+                const divideBy = a;
+                promptText = `<div style="color: #4ecdc4; font-size: 1.1em; margin-bottom: 10px;">Step 2 of 2: Divide both sides by ${divideBy}</div>`;
+                if (divideBy < 0) {
+                    promptText += `<div style="color: #ff6b6b; font-size: 0.95em;">⚠️ Dividing by a negative! Remember to flip the inequality!</div>`;
+                }
+                visualHTML = `
+                    <span class="hint-term">${aStr}x</span>
+                    <span style="color: #ffd700;">${step1Ineq}</span>
+                    <span class="hint-term">${step1Result}</span>
+                `;
+                document.getElementById('spellInput').placeholder = 'Type final answer (e.g., x>5)';
+            }
+
+            document.getElementById('visualHint').innerHTML = promptText + visualHTML;
         }
 
         function formatTerm(num, hasVar = false) {
@@ -319,40 +356,50 @@
 
         function castSpell() {
             const answer = document.getElementById('spellInput').value.trim();
-            const correct = checkAnswer(answer);
+            const correct = checkStepAnswer(answer);
 
             if (correct) {
-                // Calculate damage
-                const baseDamage = 20 + (gameState.playerLevel * 5);
-                const streakBonus = gameState.streak * 2;
-                let totalDamage = baseDamage + streakBonus;
-
-                // Apply power boost if active
-                if (gameState.powerBoost) {
-                    totalDamage *= 2;
-                    addLog('💎 POWER GEM ACTIVATED! Damage DOUBLED!');
-                    gameState.powerBoost = false;
-                }
-
-                dealDamage(totalDamage);
-                showSpellEffect();
-                gameState.streak++;
-                addLog(`✨ Perfect spell! Dealt ${totalDamage} damage! (Streak: ${gameState.streak})`);
-
-                if (gameState.currentEnemy.currentHP <= 0) {
-                    victory();
+                if (currentStep === 1) {
+                    // Step 1 correct, move to step 2
+                    addLog(`✅ Step 1 complete!`);
+                    currentStep = 2;
+                    updateStepPrompt();
+                    document.getElementById('spellInput').value = '';
+                    document.getElementById('spellInput').focus();
                 } else {
-                    setTimeout(() => {
-                        document.getElementById('hintDisplay').innerHTML = '';
-                        generateProblem();
-                    }, 1500);
+                    // Step 2 correct - both steps done! Deal damage
+                    const baseDamage = 20 + (gameState.playerLevel * 5);
+                    const streakBonus = gameState.streak * 2;
+                    let totalDamage = baseDamage + streakBonus;
+
+                    // Apply power boost if active
+                    if (gameState.powerBoost) {
+                        totalDamage *= 2;
+                        addLog('💎 POWER GEM ACTIVATED! Damage DOUBLED!');
+                        gameState.powerBoost = false;
+                    }
+
+                    dealDamage(totalDamage);
+                    showSpellEffect();
+                    gameState.streak++;
+                    addLog(`✨ Perfect spell! Dealt ${totalDamage} damage! (Streak: ${gameState.streak})`);
+
+                    if (gameState.currentEnemy.currentHP <= 0) {
+                        victory();
+                    } else {
+                        setTimeout(() => {
+                            document.getElementById('hintDisplay').innerHTML = '';
+                            generateProblem();
+                        }, 1500);
+                    }
                 }
             } else {
-                const solution = calculateAnswer();
-                const inequalityDisplay = solution.inequality.replace('<=', '≤').replace('>=', '≥');
-
-                addLog(`❌ Wrong! Correct answer: x ${inequalityDisplay} ${solution.value.toFixed(2)}`);
+                // Wrong answer - enemy attacks!
                 gameState.streak = 0;
+
+                // Show correct answer for this step
+                const stepSolution = getStepSolution();
+                addLog(`❌ Wrong! Correct answer for Step ${currentStep}: ${stepSolution}`);
 
                 // Enemy counter-attack - scales with player level!
                 const baseDamage = 10 + Math.floor(Math.random() * 10);
@@ -365,6 +412,7 @@
                 if (gameState.playerHP <= 0) {
                     defeat();
                 } else {
+                    // Show solution and reset to new problem
                     showSolution();
                     setTimeout(() => {
                         document.getElementById('hintDisplay').innerHTML = '';
@@ -373,6 +421,62 @@
                 }
             }
             updatePlayerStats();
+        }
+
+        function checkStepAnswer(answer) {
+            // Remove spaces and convert to lowercase
+            answer = answer.replace(/\s+/g, '').toLowerCase();
+
+            const { a, b, c, inequality } = currentProblem;
+
+            if (currentStep === 1) {
+                // Step 1: Should be ax [inequality] c-b
+                // Pattern: 2x>4, -3x<=10, x>=5, etc.
+                const pattern = /^([+-]?\d*)x([<>]=?|[<>])([+-]?\d+)$/;
+                const match = answer.match(pattern);
+
+                if (!match) return false;
+
+                const userA = match[1] === '' ? 1 : (match[1] === '-' ? -1 : parseInt(match[1]));
+                const userInequality = match[2];
+                const userRightSide = parseInt(match[3]);
+
+                const correctRightSide = c - b;
+
+                return userA === a && userInequality === inequality && userRightSide === correctRightSide;
+            } else {
+                // Step 2: Should be x [inequality] (c-b)/a with potential flip
+                const pattern = /^x([<>]=?|[<>])([+-]?[\d.]+)$/;
+                const match = answer.match(pattern);
+
+                if (!match) return false;
+
+                const userInequality = match[1];
+                const userValue = parseFloat(match[2]);
+
+                const correct = calculateAnswer();
+
+                // Check if inequality symbol matches
+                if (userInequality !== correct.inequality) return false;
+
+                // Check if value matches (with small tolerance for rounding)
+                return Math.abs(userValue - correct.value) < 0.01;
+            }
+        }
+
+        function getStepSolution() {
+            const { a, b, c, inequality } = currentProblem;
+            const aStr = a === 1 ? '' : (a === -1 ? '-' : a);
+
+            if (currentStep === 1) {
+                const rightSide = c - b;
+                const ineqDisplay = inequality.replace('<=', '≤').replace('>=', '≥');
+                return `${aStr}x ${ineqDisplay} ${rightSide}`;
+            } else {
+                const solution = calculateAnswer();
+                const ineqDisplay = solution.inequality.replace('<=', '≤').replace('>=', '≥');
+                return `x ${ineqDisplay} ${solution.value.toFixed(2)}`;
+            }
         }
 
         function checkAnswer(answer) {
@@ -470,20 +574,43 @@
                 updatePlayerStats();
             }
 
-            const { a, b, c } = currentProblem;
-            const reverseWarning = a < 0 ? '<br>⚠️ Remember: Dividing by a negative reverses the inequality!' : '';
+            const { a, b, c, inequality } = currentProblem;
+            let hintHTML = '';
 
-            const hintHTML = `
-                <div class="hint-tooltip">
-                    <strong>💡 Hint:</strong><br>
-                    <strong>Step 1:</strong> Subtract ${b >= 0 ? b : `(${b})`} from both sides to isolate the x term<br>
-                    <strong>Step 2:</strong> Divide both sides by ${a} to solve for x${reverseWarning}<br>
-                    <strong>Format:</strong> Type your answer like: x>5 or x<=-3
-                </div>
-            `;
+            if (currentStep === 1) {
+                // Hint for Step 1
+                const operation = b >= 0 ? `Subtract ${b}` : `Add ${Math.abs(b)}`;
+                const result = c - b;
+                const aStr = a === 1 ? '' : (a === -1 ? '-' : a);
+                const ineqDisplay = inequality.replace('<=', '≤').replace('>=', '≥');
+                hintHTML = `
+                    <div class="hint-tooltip">
+                        <strong>💡 Hint for Step 1:</strong><br>
+                        ${operation} from both sides to isolate the ${aStr}x term<br>
+                        <strong>Result will be:</strong> ${aStr}x ${ineqDisplay} ${result}<br>
+                        <strong>Format:</strong> Type like: ${aStr}x${inequality}${result}
+                    </div>
+                `;
+            } else {
+                // Hint for Step 2
+                const step1Result = c - b;
+                const reverseWarning = a < 0 ? '<br>⚠️ <strong>IMPORTANT:</strong> You\'re dividing by a NEGATIVE! The inequality MUST flip!' : '';
+                const solution = calculateAnswer();
+                const ineqDisplay = solution.inequality.replace('<=', '≤').replace('>=', '≥');
+                hintHTML = `
+                    <div class="hint-tooltip">
+                        <strong>💡 Hint for Step 2:</strong><br>
+                        Divide both sides by ${a} to solve for x${reverseWarning}<br>
+                        <strong>Calculation:</strong> ${step1Result} ÷ ${a} = ${solution.value.toFixed(2)}<br>
+                        <strong>Answer:</strong> x ${ineqDisplay} ${solution.value.toFixed(2)}<br>
+                        <strong>Format:</strong> Type like: x${solution.inequality}${solution.value.toFixed(2)}
+                    </div>
+                `;
+            }
+
             document.getElementById('hintDisplay').innerHTML = hintHTML;
             if (!free) {
-                addLog('💡 Hint purchased for 10 gold!');
+                addLog(`💡 Hint for Step ${currentStep} purchased for 10 gold!`);
             }
         }
 
