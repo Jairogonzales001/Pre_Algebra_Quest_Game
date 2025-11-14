@@ -645,6 +645,182 @@
             line-height: 1.6;
         }
 
+        /* Lesson Screen */
+        .lesson-screen {
+            display: none;
+            min-height: 100vh;
+            background: linear-gradient(135deg, #0f0c29, #302b63, #24243e);
+            padding: 40px 20px;
+            overflow-y: auto;
+        }
+
+        .lesson-container {
+            max-width: 900px;
+            margin: 0 auto;
+            background: rgba(0, 0, 0, 0.7);
+            border-radius: 20px;
+            padding: 40px;
+            border: 3px solid #ffd700;
+            box-shadow: 0 10px 40px rgba(255, 215, 0, 0.3);
+        }
+
+        .lesson-title {
+            font-size: 2.5em;
+            color: #ffd700;
+            text-align: center;
+            margin-bottom: 30px;
+            text-shadow: 0 0 20px #ffd700;
+        }
+
+        .lesson-content {
+            color: #eee;
+            line-height: 1.8;
+        }
+
+        .lesson-section {
+            background: rgba(78, 205, 196, 0.1);
+            border: 2px solid #4ecdc4;
+            border-radius: 15px;
+            padding: 25px;
+            margin: 25px 0;
+        }
+
+        .lesson-section h2 {
+            color: #ffd700;
+            font-size: 1.8em;
+            margin-bottom: 15px;
+        }
+
+        .lesson-section h3 {
+            color: #4ecdc4;
+            font-size: 1.5em;
+            margin-bottom: 15px;
+        }
+
+        .lesson-section p {
+            font-size: 1.2em;
+            margin: 10px 0;
+        }
+
+        .step-box {
+            background: rgba(0, 0, 0, 0.5);
+            border-radius: 10px;
+            padding: 20px;
+            margin-top: 15px;
+        }
+
+        .step {
+            margin: 20px 0;
+        }
+
+        .step-number {
+            display: inline-block;
+            background: #ffd700;
+            color: #1a1a2e;
+            padding: 5px 15px;
+            border-radius: 20px;
+            font-weight: bold;
+            margin-right: 10px;
+        }
+
+        .step-text {
+            color: #4ecdc4;
+            font-size: 1.2em;
+        }
+
+        .step-math {
+            font-size: 1.3em;
+            color: #fff;
+            margin: 10px 0 10px 40px;
+            padding: 15px;
+            background: rgba(255, 255, 255, 0.05);
+            border-left: 4px solid #4ecdc4;
+            border-radius: 5px;
+            font-family: 'Courier New', monospace;
+        }
+
+        .warning-box {
+            background: rgba(255, 107, 107, 0.2);
+            border-color: #ff6b6b;
+        }
+
+        .warning-text {
+            font-size: 1.3em;
+            color: #fff;
+            text-align: center;
+        }
+
+        .warning-text strong {
+            color: #ffd700;
+            font-size: 1.2em;
+        }
+
+        .example-box {
+            background: rgba(0, 0, 0, 0.5);
+            border-radius: 10px;
+            padding: 20px;
+            margin-top: 20px;
+        }
+
+        .example-title {
+            font-size: 1.4em;
+            color: #ffd700;
+            margin-bottom: 15px;
+            text-align: center;
+        }
+
+        .video-container {
+            position: relative;
+            width: 100%;
+            padding-bottom: 56.25%; /* 16:9 aspect ratio */
+            height: 0;
+            overflow: hidden;
+            border-radius: 15px;
+            margin-top: 20px;
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.5);
+        }
+
+        .video-container iframe {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            border-radius: 15px;
+        }
+
+        .answer-format {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
+            gap: 15px;
+            margin-top: 20px;
+        }
+
+        .format-item {
+            background: rgba(78, 205, 196, 0.2);
+            border: 2px solid #4ecdc4;
+            padding: 15px;
+            border-radius: 10px;
+            text-align: center;
+            font-size: 1.3em;
+            font-weight: bold;
+            color: #4ecdc4;
+        }
+
+        .lesson-section code {
+            background: rgba(255, 215, 0, 0.2);
+            color: #ffd700;
+            padding: 5px 10px;
+            border-radius: 5px;
+            font-size: 1.2em;
+            margin: 0 5px;
+        }
+
+        .lesson-buttons {
+            margin-top: 30px;
+            text-align: center;
+        }
+
         .dungeon-select {
             display: none;
             height: 100vh;
@@ -691,6 +867,71 @@
             .game-title {
                 font-size: 2.5em;
                 padding: 0 20px;
+            }
+
+            /* Lesson Screen Mobile */
+            .lesson-screen {
+                padding: 20px 10px;
+            }
+
+            .lesson-container {
+                padding: 20px;
+                border-radius: 15px;
+            }
+
+            .lesson-title {
+                font-size: 1.8em;
+            }
+
+            .lesson-section {
+                padding: 15px;
+                margin: 15px 0;
+            }
+
+            .lesson-section h2 {
+                font-size: 1.4em;
+            }
+
+            .lesson-section h3 {
+                font-size: 1.2em;
+            }
+
+            .lesson-section p {
+                font-size: 1em;
+            }
+
+            .step-text {
+                font-size: 1em;
+                display: block;
+                margin-top: 8px;
+            }
+
+            .step-math {
+                font-size: 1em;
+                margin-left: 0;
+                padding: 10px;
+            }
+
+            .warning-text {
+                font-size: 1.1em;
+            }
+
+            .example-title {
+                font-size: 1.1em;
+            }
+
+            .answer-format {
+                grid-template-columns: 1fr 1fr;
+                gap: 10px;
+            }
+
+            .format-item {
+                font-size: 1.1em;
+                padding: 12px;
+            }
+
+            .lesson-section code {
+                font-size: 1em;
             }
 
             .game-subtitle {

@@ -21,7 +21,78 @@
             You are the chosen Math Wizard. Use your knowledge of<br>
             solving two-step inequalities to cast powerful spells and save the realm!
         </p>
-        <button class="start-button" onclick="startGame()">BEGIN QUEST</button>
+        <button class="start-button" onclick="showLesson()">📚 LEARN HOW TO PLAY</button>
+        <button class="start-button" onclick="startGame()" style="background: linear-gradient(45deg, #4ecdc4, #44a08d); margin-top: 15px;">⚔️ START ADVENTURE</button>
+    </div>
+
+    <!-- Lesson Screen -->
+    <div class="lesson-screen" id="lessonScreen">
+        <div class="lesson-container">
+            <h1 class="lesson-title">📚 How to Solve Two-Step Inequalities</h1>
+
+            <div class="lesson-content">
+                <div class="lesson-section">
+                    <h2>🎯 The Goal</h2>
+                    <p>Get the variable (x) by itself on one side of the inequality!</p>
+                </div>
+
+                <div class="lesson-section">
+                    <h3>📝 Example: 2x + 3 > 7</h3>
+                    <div class="step-box">
+                        <div class="step">
+                            <span class="step-number">Step 1:</span>
+                            <span class="step-text">Subtract 3 from both sides</span>
+                            <div class="step-math">2x + 3 - 3 > 7 - 3 → 2x > 4</div>
+                        </div>
+                        <div class="step">
+                            <span class="step-number">Step 2:</span>
+                            <span class="step-text">Divide both sides by 2</span>
+                            <div class="step-math">2x ÷ 2 > 4 ÷ 2 → x > 2</div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="lesson-section warning-box">
+                    <h3>⚠️ CRITICAL RULE!</h3>
+                    <p class="warning-text">When you <strong>multiply or divide by a NEGATIVE number</strong>, you must <strong>FLIP the inequality sign!</strong></p>
+                    <div class="example-box">
+                        <div class="example-title">Example: -2x < 6</div>
+                        <div class="step-math">Divide both sides by -2</div>
+                        <div class="step-math" style="color: #ff6b6b;">-2x ÷ (-2) <strong style="color: #ffd700;">&gt;</strong> 6 ÷ (-2)</div>
+                        <div class="step-math">x <strong style="color: #ffd700;">&gt;</strong> -3  <span style="color: #4ecdc4;">(notice the flip from &lt; to &gt;)</span></div>
+                    </div>
+                </div>
+
+                <div class="lesson-section">
+                    <h3>📺 Watch This Tutorial</h3>
+                    <div class="video-container">
+                        <iframe
+                            src="https://www.youtube.com/embed/H1tQFiCMYT4"
+                            title="How to Solve Two-Step Inequalities"
+                            frameborder="0"
+                            allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
+                            allowfullscreen>
+                        </iframe>
+                    </div>
+                </div>
+
+                <div class="lesson-section">
+                    <h3>💡 How to Enter Answers in the Game</h3>
+                    <div class="answer-format">
+                        <div class="format-item">✅ x>5</div>
+                        <div class="format-item">✅ x&lt;=-3</div>
+                        <div class="format-item">✅ x&gt;=10</div>
+                        <div class="format-item">✅ x&lt;2</div>
+                    </div>
+                    <p style="margin-top: 15px; color: #4ecdc4;">Use: <code>&lt;</code> <code>&gt;</code> <code>&lt;=</code> <code>&gt;=</code></p>
+                </div>
+            </div>
+
+            <div class="lesson-buttons">
+                <button class="continue-btn" onclick="startGame()">🎮 START PLAYING NOW</button>
+                <button class="continue-btn" onclick="backToTitle()" style="background: linear-gradient(45deg, #666, #888); margin-top: 15px;">← BACK TO MENU</button>
+            </div>
+        </div>
     </div>
 
     <!-- Dungeon Selection -->

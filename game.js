@@ -84,8 +84,21 @@
 
         let currentProblem = {};
 
+        function showLesson() {
+            document.getElementById('titleScreen').style.display = 'none';
+            document.getElementById('lessonScreen').style.display = 'block';
+        }
+
+        function backToTitle() {
+            document.getElementById('lessonScreen').style.display = 'none';
+            document.getElementById('dungeonSelect').style.display = 'none';
+            document.getElementById('battleScreen').style.display = 'none';
+            document.getElementById('titleScreen').style.display = 'flex';
+        }
+
         function startGame() {
             document.getElementById('titleScreen').style.display = 'none';
+            document.getElementById('lessonScreen').style.display = 'none';
             document.getElementById('dungeonSelect').style.display = 'flex';
         }
 
