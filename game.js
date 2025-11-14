@@ -84,6 +84,8 @@
 
         let currentProblem = {};
         let currentStep = 1; // Track which step player is on (1 or 2)
+        let allowSkipSteps = false; // For Crystal Caves level 3+
+        let problemStartTime = null; // For Shadow Tower timer
 
         function showLesson() {
             document.getElementById('titleScreen').style.display = 'none';
@@ -260,25 +262,33 @@
             const playerLevel = gameState.playerLevel;
 
             if (gameState.currentDungeon === 'forest') {
-                // Easy: positive coefficients, simple numbers
+                // Easy: positive coefficients, INTEGER answers only
                 // Scales from level 1-10
-                const maxCoeff = Math.min(2 + playerLevel, 10); // Coefficients get bigger
-                const maxConst = Math.min(5 + (playerLevel * 2), 30); // Constants get bigger
+                const maxCoeff = Math.min(2 + playerLevel, 10);
+                const maxAnswer = Math.min(10 + (playerLevel * 2), 30);
 
                 a = Math.floor(Math.random() * maxCoeff) + 2; // Always positive
-                b = Math.floor(Math.random() * maxConst) + 1;
-                c = Math.floor(Math.random() * (maxConst * 2)) + maxConst;
+                b = Math.floor(Math.random() * 10) + 1;
+
+                // Generate integer answer, then work backwards
+                const answer = Math.floor(Math.random() * maxAnswer) + 1;
+                c = (a * answer) + b; // Ensures (c - b) / a is always an integer
+
                 inequality = inequalitySymbols[Math.floor(Math.random() * 4)];
             } else if (gameState.currentDungeon === 'cave') {
-                // Medium: can have negative coefficients
+                // Medium: can have negative coefficients, INTEGER answers only
                 // At higher levels, negative numbers more common
                 const maxCoeff = Math.min(3 + playerLevel, 12);
-                const maxConst = Math.min(10 + (playerLevel * 3), 50);
-                const negativeChance = Math.min(0.3 + (playerLevel * 0.05), 0.6); // More negatives as you level
+                const maxAnswer = Math.min(15 + (playerLevel * 2), 40);
+                const negativeChance = Math.min(0.3 + (playerLevel * 0.05), 0.6);
 
                 a = (Math.random() > negativeChance ? 1 : -1) * (Math.floor(Math.random() * maxCoeff) + 2);
-                b = (Math.random() > 0.5 ? 1 : -1) * (Math.floor(Math.random() * maxConst) + 1);
-                c = (Math.random() > 0.5 ? 1 : -1) * (Math.floor(Math.random() * maxConst) + 5);
+                b = (Math.random() > 0.5 ? 1 : -1) * (Math.floor(Math.random() * 20) + 1);
+
+                // Generate integer answer (can be negative), then work backwards
+                const answer = (Math.random() > 0.5 ? 1 : -1) * Math.floor(Math.random() * maxAnswer);
+                c = (a * answer) + b; // Ensures integer answer
+
                 inequality = inequalitySymbols[Math.floor(Math.random() * 4)];
             } else {
                 // Hard: negative coefficients more common
@@ -295,6 +305,14 @@
 
             currentProblem = { a, b, c, inequality };
             currentStep = 1; // Reset to step 1 for new problem
+
+            // Check if player can skip steps (Cave dungeon level 3+)
+            allowSkipSteps = (gameState.currentDungeon === 'cave' && gameState.playerLevel >= 3);
+
+            // Start timer for Shadow Tower
+            if (gameState.currentDungeon === 'tower') {
+                problemStartTime = Date.now();
+            }
 
             // Format the inequality display
             const aStr = a === 1 ? '' : (a === -1 ? '-' : a);
@@ -313,15 +331,60 @@
             const aStr = a === 1 ? '' : (a === -1 ? '-' : a);
             const bStr = b >= 0 ? `+ ${b}` : `- ${Math.abs(b)}`;
             const inequalityDisplay = inequality.replace('<=', '≤').replace('>=', '≥');
+            const playerLevel = gameState.playerLevel;
+            const dungeon = gameState.currentDungeon;
 
             let promptText = '';
             let visualHTML = '';
+            let timerHTML = '';
+            let skipButtonHTML = '';
+
+            // Shadow Tower: Show timer
+            if (dungeon === 'tower' && problemStartTime) {
+                timerHTML = `<div id="timer" style="color: #ffd700; font-size: 1.2em; text-align: center; margin-bottom: 10px;">⏱️ Time: <span id="timerDisplay">0.0</span>s</div>`;
+                // Start timer update
+                if (window.timerInterval) clearInterval(window.timerInterval);
+                window.timerInterval = setInterval(() => {
+                    const elapsed = ((Date.now() - problemStartTime) / 1000).toFixed(1);
+                    const display = document.getElementById('timerDisplay');
+                    if (display) display.textContent = elapsed;
+                }, 100);
+            }
+
+            // Crystal Caves: Show skip button at level 3+
+            if (allowSkipSteps) {
+                skipButtonHTML = `<div style="text-align: center; margin-bottom: 10px;"><button class="battle-btn" style="background: linear-gradient(45deg, #ffd700, #ff6b6b); padding: 10px 20px; font-size: 0.9em;" onclick="toggleSkipMode()">⚡ Skip Steps & Solve Directly (Bonus Damage!)</button></div>`;
+            }
 
             if (currentStep === 1) {
                 // Step 1: Add or subtract to isolate ax
                 const operation = b >= 0 ? 'subtract' : 'add';
                 const operationValue = Math.abs(b);
-                promptText = `<div style="color: #4ecdc4; font-size: 1.1em; margin-bottom: 10px;">Step 1 of 2: ${operation.charAt(0).toUpperCase() + operation.slice(1)} ${operationValue} from both sides</div>`;
+
+                // FOREST: Gradual guidance removal
+                if (dungeon === 'forest') {
+                    if (playerLevel <= 2) {
+                        // Full guidance
+                        promptText = `<div style="color: #4ecdc4; font-size: 1.1em; margin-bottom: 10px;">Step 1 of 2: ${operation.charAt(0).toUpperCase() + operation.slice(1)} ${operationValue} from both sides</div>`;
+                    } else if (playerLevel <= 5) {
+                        // Minimal guidance
+                        promptText = `<div style="color: #4ecdc4; font-size: 1.1em; margin-bottom: 10px;">Step 1 of 2</div>`;
+                    } else {
+                        // No guidance - they're on their own!
+                        promptText = `<div style="color: #4ecdc4; font-size: 1.1em; margin-bottom: 10px;">Step 1 of 2 - You got this! 💪</div>`;
+                    }
+                } else if (dungeon === 'tower') {
+                    // Tower: No operation hints after level 3
+                    if (playerLevel <= 3) {
+                        promptText = `<div style="color: #4ecdc4; font-size: 1.1em; margin-bottom: 10px;">Step 1 of 2: ${operation.charAt(0).toUpperCase() + operation.slice(1)} ${operationValue} from both sides</div>`;
+                    } else {
+                        promptText = `<div style="color: #4ecdc4; font-size: 1.1em; margin-bottom: 10px;">Step 1 of 2 ⚡</div>`;
+                    }
+                } else {
+                    // Cave: Normal guidance
+                    promptText = `<div style="color: #4ecdc4; font-size: 1.1em; margin-bottom: 10px;">Step 1 of 2: ${operation.charAt(0).toUpperCase() + operation.slice(1)} ${operationValue} from both sides</div>`;
+                }
+
                 visualHTML = `
                     <span class="hint-term">${aStr}x ${bStr}</span>
                     <span style="color: #ffd700;">${inequalityDisplay}</span>
@@ -333,10 +396,43 @@
                 const step1Result = c - b;
                 const step1Ineq = inequality.replace('<=', '≤').replace('>=', '≥');
                 const divideBy = a;
-                promptText = `<div style="color: #4ecdc4; font-size: 1.1em; margin-bottom: 10px;">Step 2 of 2: Divide both sides by ${divideBy}</div>`;
-                if (divideBy < 0) {
-                    promptText += `<div style="color: #ff6b6b; font-size: 0.95em;">⚠️ Dividing by a negative! Remember to flip the inequality!</div>`;
+
+                // FOREST: Gradual guidance removal
+                if (dungeon === 'forest') {
+                    if (playerLevel <= 2) {
+                        promptText = `<div style="color: #4ecdc4; font-size: 1.1em; margin-bottom: 10px;">Step 2 of 2: Divide both sides by ${divideBy}</div>`;
+                        if (divideBy < 0) {
+                            promptText += `<div style="color: #ff6b6b; font-size: 0.95em;">⚠️ Dividing by a negative! Remember to flip the inequality!</div>`;
+                        }
+                    } else if (playerLevel <= 5) {
+                        promptText = `<div style="color: #4ecdc4; font-size: 1.1em; margin-bottom: 10px;">Step 2 of 2</div>`;
+                        if (divideBy < 0) {
+                            promptText += `<div style="color: #ff6b6b; font-size: 0.95em;">⚠️ Watch out for negatives!</div>`;
+                        }
+                    } else {
+                        promptText = `<div style="color: #4ecdc4; font-size: 1.1em; margin-bottom: 10px;">Step 2 of 2 - Almost there! 🎯</div>`;
+                    }
+                } else if (dungeon === 'tower') {
+                    // Tower: Minimal hints after level 3
+                    if (playerLevel <= 3) {
+                        promptText = `<div style="color: #4ecdc4; font-size: 1.1em; margin-bottom: 10px;">Step 2 of 2: Divide both sides by ${divideBy}</div>`;
+                        if (divideBy < 0) {
+                            promptText += `<div style="color: #ff6b6b; font-size: 0.95em;">⚠️ Dividing by a negative! Remember to flip the inequality!</div>`;
+                        }
+                    } else {
+                        promptText = `<div style="color: #4ecdc4; font-size: 1.1em; margin-bottom: 10px;">Step 2 of 2 ⚡</div>`;
+                        if (divideBy < 0) {
+                            promptText += `<div style="color: #ff6b6b; font-size: 0.95em;">⚠️ Negative alert!</div>`;
+                        }
+                    }
+                } else {
+                    // Cave: Normal guidance
+                    promptText = `<div style="color: #4ecdc4; font-size: 1.1em; margin-bottom: 10px;">Step 2 of 2: Divide both sides by ${divideBy}</div>`;
+                    if (divideBy < 0) {
+                        promptText += `<div style="color: #ff6b6b; font-size: 0.95em;">⚠️ Dividing by a negative! Remember to flip the inequality!</div>`;
+                    }
                 }
+
                 visualHTML = `
                     <span class="hint-term">${aStr}x</span>
                     <span style="color: #ffd700;">${step1Ineq}</span>
@@ -345,7 +441,7 @@
                 document.getElementById('spellInput').placeholder = 'Type final answer (e.g., x>5)';
             }
 
-            document.getElementById('visualHint').innerHTML = promptText + visualHTML;
+            document.getElementById('visualHint').innerHTML = timerHTML + skipButtonHTML + promptText + visualHTML;
         }
 
         function formatTerm(num, hasVar = false) {
@@ -354,9 +450,39 @@
             return num + (hasVar ? 'x' : '');
         }
 
+        function toggleSkipMode() {
+            // Cave dungeon level 3+: Allow skipping to final answer
+            if (!allowSkipSteps) return;
+
+            // Jump to "skip mode" - accept final answer directly
+            currentStep = 'skip';
+            const solution = calculateAnswer();
+            const ineqDisplay = solution.inequality.replace('<=', '≤').replace('>=', '≥');
+
+            document.getElementById('visualHint').innerHTML = `
+                <div style="color: #ffd700; font-size: 1.2em; text-align: center; margin-bottom: 10px;">⚡ DIRECT SOLVE MODE - 2X DAMAGE! ⚡</div>
+                <div style="color: #4ecdc4; font-size: 1em; text-align: center; margin-bottom: 15px;">Solve the entire inequality in one go for DOUBLE damage!</div>
+                <div style="text-align: center;">
+                    <span class="hint-term">${currentProblem.a === 1 ? '' : (currentProblem.a === -1 ? '-' : currentProblem.a)}x ${currentProblem.b >= 0 ? '+' : ''} ${currentProblem.b}</span>
+                    <span style="color: #ffd700;"> ${currentProblem.inequality.replace('<=', '≤').replace('>=', '≥')} </span>
+                    <span class="hint-term">${currentProblem.c}</span>
+                </div>
+            `;
+            document.getElementById('spellInput').placeholder = 'Type final answer (e.g., x>5)';
+            document.getElementById('spellInput').value = '';
+            document.getElementById('spellInput').focus();
+        }
+
         function castSpell() {
             const answer = document.getElementById('spellInput').value.trim();
-            const correct = checkStepAnswer(answer);
+            let correct = false;
+
+            // Check if in skip mode (Cave dungeon level 3+)
+            if (currentStep === 'skip') {
+                correct = checkFinalAnswer(answer);
+            } else {
+                correct = checkStepAnswer(answer);
+            }
 
             if (correct) {
                 if (currentStep === 1) {
@@ -367,15 +493,45 @@
                     document.getElementById('spellInput').value = '';
                     document.getElementById('spellInput').focus();
                 } else {
-                    // Step 2 correct - both steps done! Deal damage
+                    // Step 2 or Skip mode correct - Deal damage!
+                    // Stop timer if Tower dungeon
+                    if (window.timerInterval) {
+                        clearInterval(window.timerInterval);
+                        window.timerInterval = null;
+                    }
+
                     const baseDamage = 20 + (gameState.playerLevel * 5);
                     const streakBonus = gameState.streak * 2;
                     let totalDamage = baseDamage + streakBonus;
+                    let damageMultiplier = 1;
+
+                    // CAVE SKIP MODE BONUS: 2x damage
+                    if (currentStep === 'skip') {
+                        damageMultiplier *= 2;
+                        addLog('⚡ DIRECT SOLVE BONUS! Damage DOUBLED!');
+                    }
+
+                    // TOWER TIMER BONUS: Faster = more damage
+                    if (gameState.currentDungeon === 'tower' && problemStartTime) {
+                        const timeElapsed = (Date.now() - problemStartTime) / 1000;
+                        if (timeElapsed < 5) {
+                            damageMultiplier *= 2;
+                            addLog(`⚡ SPEED BONUS! Solved in ${timeElapsed.toFixed(1)}s - Damage DOUBLED!`);
+                        } else if (timeElapsed < 10) {
+                            damageMultiplier *= 1.5;
+                            addLog(`⚡ SPEED BONUS! Solved in ${timeElapsed.toFixed(1)}s - Damage x1.5!`);
+                        } else if (timeElapsed < 15) {
+                            damageMultiplier *= 1.25;
+                            addLog(`⚡ SPEED BONUS! Solved in ${timeElapsed.toFixed(1)}s - Damage x1.25!`);
+                        }
+                    }
+
+                    totalDamage = Math.floor(totalDamage * damageMultiplier);
 
                     // Apply power boost if active
                     if (gameState.powerBoost) {
                         totalDamage *= 2;
-                        addLog('💎 POWER GEM ACTIVATED! Damage DOUBLED!');
+                        addLog('💎 POWER GEM ACTIVATED! Damage DOUBLED AGAIN!');
                         gameState.powerBoost = false;
                     }
 
@@ -397,9 +553,23 @@
                 // Wrong answer - enemy attacks!
                 gameState.streak = 0;
 
+                // Stop timer if Tower dungeon
+                if (window.timerInterval) {
+                    clearInterval(window.timerInterval);
+                    window.timerInterval = null;
+                }
+
                 // Show correct answer for this step
-                const stepSolution = getStepSolution();
-                addLog(`❌ Wrong! Correct answer for Step ${currentStep}: ${stepSolution}`);
+                let stepSolution = '';
+                if (currentStep === 'skip') {
+                    const solution = calculateAnswer();
+                    const ineqDisplay = solution.inequality.replace('<=', '≤').replace('>=', '≥');
+                    stepSolution = `x ${ineqDisplay} ${solution.value}`;
+                    addLog(`❌ Wrong! Correct answer: ${stepSolution}`);
+                } else {
+                    stepSolution = getStepSolution();
+                    addLog(`❌ Wrong! Correct answer for Step ${currentStep}: ${stepSolution}`);
+                }
 
                 // Enemy counter-attack - scales with player level!
                 const baseDamage = 10 + Math.floor(Math.random() * 10);
@@ -421,6 +591,26 @@
                 }
             }
             updatePlayerStats();
+        }
+
+        function checkFinalAnswer(answer) {
+            // For skip mode - check final answer directly
+            answer = answer.replace(/\s+/g, '').toLowerCase();
+            const pattern = /^x([<>]=?|[<>])([+-]?[\d.]+)$/;
+            const match = answer.match(pattern);
+
+            if (!match) return false;
+
+            const userInequality = match[1];
+            const userValue = parseFloat(match[2]);
+
+            const correct = calculateAnswer();
+
+            // Check if inequality symbol matches
+            if (userInequality !== correct.inequality) return false;
+
+            // Check if value matches (with small tolerance for rounding)
+            return Math.abs(userValue - correct.value) < 0.01;
         }
 
         function checkStepAnswer(answer) {
